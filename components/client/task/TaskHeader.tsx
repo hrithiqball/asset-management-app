@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Divider } from '@nextui-org/react';
-import { LuMoreVertical } from 'react-icons/lu';
+import { MoreVertical } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 
 export default function TaskHeader() {
   return (
@@ -21,10 +21,10 @@ export default function TaskHeader() {
           <span className=" font-bold text-medium">Remarks</span>
         </div>
         <div className="flex-2 space-x-2">
-          <LuMoreVertical className="hidden" />
+          <MoreVertical className="hidden" />
         </div>
       </div>
-      <Divider />
+      <Separator />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import Asset from '@/components/client/Asset';
+import Asset from '@/components/client/asset/Asset';
 import {
   fetchChecklistUseList,
   fetchMaintenanceList,

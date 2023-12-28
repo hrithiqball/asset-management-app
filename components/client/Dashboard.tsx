@@ -1,29 +1,14 @@
 'use client';
 
-import React, { Key, useEffect, useState } from 'react';
-import { Card, Tab, Tabs } from '@nextui-org/react';
-import { useTheme } from 'next-themes';
+import React, { useEffect, useState } from 'react';
 import Overview from '@/components/client/Overview';
 import Calendar from '@/components/client/Calendar';
 import Report from '@/components/client/Report';
+import { Card } from '@/components/ui/card';
+import { Tabs, TabsList, TabsContent, TabsTrigger } from '@/components/ui/tabs';
 
 export default function Dashboard() {
-  const [activeComponent, setActiveComponent] = useState('overview');
   const [mounted, setMounted] = useState(false);
-  const { theme } = useTheme();
-
-  const renderComponent = () => {
-    switch (activeComponent) {
-      case 'overview':
-        return <Overview />;
-      case 'report':
-        return <Report />;
-      case 'calendar':
-        return <Calendar />;
-      default:
-        return null;
-    }
-  };
 
   useEffect(() => {
     setMounted(true);
@@ -32,24 +17,23 @@ export default function Dashboard() {
   if (!mounted) return null;
 
   return (
-    <Card
-      className={`rounded-md p-4 m-4 flex-grow ${
-        theme === 'dark' ? 'bg-gray-800' : 'bg-gray-200'
-      }`}
-    >
-      <Tabs
-        radius="md"
-        color="primary"
-        aria-label="Tabs radius"
-        onSelectionChange={(key: Key) => {
-          setActiveComponent(key as string);
-        }}
-      >
-        <Tab key="overview" title="Overview" />
-        <Tab key="report" title="Report" />
-        <Tab key="calendar" title="Calendar" />
+    <Card className="rounded-md p-4 m-4 flex-grow">
+      <Tabs aria-label="Tabs">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="report">Report</TabsTrigger>
+          <TabsTrigger value="calendar">Calendar</TabsTrigger>
+        </TabsList>
+        <TabsContent value="overview">
+          <Overview />
+        </TabsContent>
+        <TabsContent value="report">
+          <Report />
+        </TabsContent>
+        <TabsContent value="calendar">
+          <Calendar />
+        </TabsContent>
       </Tabs>
-      <div className="flex-grow h-full mt-4">{renderComponent()}</div>
     </Card>
   );
 }

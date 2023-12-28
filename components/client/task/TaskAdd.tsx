@@ -1,35 +1,31 @@
 'use client';
 
 import React, { Fragment, useEffect, useState, useTransition } from 'react';
-import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Select,
-  SelectItem,
-} from '@nextui-org/react';
 import { TaskType, task } from '@prisma/client';
 import { createTask } from '@/app/api/server-actions';
+// import { selectionChoices } from '@/utils/data/task-type-options';
+import { Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+
 import moment from 'moment';
-import { selectionChoices } from '@/utils/data/task-type-options';
-import { LuTrash2 } from 'react-icons/lu';
+import { Label } from '@/components/ui/label';
 
 export default function TaskAdd({ checklistUid }: { checklistUid: string }) {
   let [isPending, startTransition] = useTransition();
-  const [open, setOpen] = useState<boolean>(false);
   const [taskActivity, setTaskActivity] = useState<string>('');
   const [taskDescription, setTaskDescription] = useState<string>('');
   const [selection, setSelection] = useState<TaskType>(TaskType.check);
   const [listCount, setListCount] = useState<number>(1);
   const [choices, setChoices] = useState(Array(listCount).fill('Choice 1'));
-
-  function handleSelectionChange(val: any) {
-    setSelection(val.currentKey as TaskType);
-  }
 
   function handleDeleteChoice(indexToDelete: number) {
     setChoices(prevChoices => {
@@ -80,7 +76,6 @@ export default function TaskAdd({ checklistUid }: { checklistUid: string }) {
   }
 
   function closeModal() {
-    setOpen(prevOpen => !prevOpen);
     setSelection('check');
     setTaskActivity('');
     setTaskDescription('');
@@ -94,92 +89,85 @@ export default function TaskAdd({ checklistUid }: { checklistUid: string }) {
 
   return (
     <div>
-      <Button onPress={() => setOpen(!open)}>Add Task</Button>
-      <Modal isOpen={open} hideCloseButton backdrop="blur">
-        <ModalContent>
-          {() => (
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button>Add Task</Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader className="flex flex-col gap-1">
+            Add New Task
+          </DialogHeader>
+          <Label htmlFor="activity">Activity</Label>
+          <Input
+            required
+            autoFocus
+            id="activity"
+            value={taskActivity}
+            onChange={e => setTaskActivity(e.target.value)}
+          />
+          <Label htmlFor="description">Description</Label>
+          <Input
+            id="description"
+            value={taskDescription}
+            onChange={e => setTaskDescription(e.target.value)}
+          />
+          {/* <Select
+            required
+            value={selection}
+            onSelectionChange={handleSelectionChange}
+          >
+            {selectionChoices.map(choice => (
+              <SelectItem key={choice.key} value={choice.key}>
+                {choice.value}
+              </SelectItem>
+            ))}
+          </Select> */}
+          {(selection === 'selectOne' || selection === 'selectMultiple') && (
             <Fragment>
-              <ModalHeader className="flex flex-col gap-1">
-                Add New Task
-              </ModalHeader>
-              <ModalBody>
-                <Input
-                  isRequired
-                  autoFocus
-                  label="Activity"
-                  variant="faded"
-                  value={taskActivity}
-                  onValueChange={setTaskActivity}
-                />
-                <Input
-                  label="Description"
-                  variant="faded"
-                  value={taskDescription}
-                  onValueChange={setTaskDescription}
-                />
-                <Select
-                  isRequired
-                  label="Task Type"
-                  variant="faded"
-                  value={selection}
-                  onSelectionChange={handleSelectionChange}
-                >
-                  {selectionChoices.map(choice => (
-                    <SelectItem key={choice.key} value={choice.key}>
-                      {choice.value}
-                    </SelectItem>
-                  ))}
-                </Select>
-                {(selection === 'selectOne' ||
-                  selection === 'selectMultiple') && (
-                  <Fragment>
-                    {choices.map((choice, index) => (
-                      <div className="flex items-center" key={index}>
-                        <Input
-                          label={`List Choice ${index + 1}`}
-                          variant="faded"
-                          value={choice}
-                          onChange={e =>
-                            handleChoiceChange(index, e.target.value)
-                          }
-                        />
-                        <Button
-                          className="ml-2"
-                          isIconOnly
-                          onClick={() => handleDeleteChoice(index)}
-                        >
-                          <LuTrash2 />
-                        </Button>
-                      </div>
-                    ))}
-                    <Button onClick={() => handleAddChoice()}>
-                      Add Choice
-                    </Button>
-                  </Fragment>
-                )}
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={closeModal}>
-                  Close
-                </Button>
-                <Button
-                  isDisabled={
-                    taskActivity === '' ||
-                    (selection === 'selectOne' && listCount < 2) ||
-                    (selection === 'selectMultiple' && listCount < 2)
-                  }
-                  color="primary"
-                  onPress={() => {
-                    addTaskClient();
-                  }}
-                >
-                  Save
-                </Button>
-              </ModalFooter>
+              {choices.map((choice, index) => (
+                <div className="flex items-center" key={index}>
+                  <Label htmlFor={`choice-select-${index + 1}`}>{`List Choice ${
+                    index + 1
+                  }`}</Label>
+                  <Input
+                    id={`choice-select-${index + 1}`}
+                    value={choice}
+                    onChange={e => handleChoiceChange(index, e.target.value)}
+                  />
+                  <Button
+                    className="ml-2"
+                    size="icon"
+                    onClick={() => handleDeleteChoice(index)}
+                  >
+                    <Trash2 />
+                  </Button>
+                </div>
+              ))}
+              <Button onClick={() => handleAddChoice()}>Add Choice</Button>
             </Fragment>
           )}
-        </ModalContent>
-      </Modal>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button color="error" variant="ghost">
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button
+              disabled={
+                taskActivity === '' ||
+                (selection === 'selectOne' && listCount < 2) ||
+                (selection === 'selectMultiple' && listCount < 2)
+              }
+              color="primary"
+              onClick={() => {
+                addTaskClient();
+              }}
+            >
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

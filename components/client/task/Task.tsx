@@ -4,9 +4,12 @@ import React, { useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
 import { maintenance } from '@prisma/client';
 import Loading from '@/components/client/Loading';
-import { Button, Card, CardHeader, Chip, Divider } from '@nextui-org/react';
 import Link from 'next/link';
-import { LuWrench } from 'react-icons/lu';
+import { Wrench } from 'lucide-react';
+import { Card, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 
 export default function Task({
   maintenanceList,
@@ -31,17 +34,14 @@ export default function Task({
         <Card className="flex-1 p-4">
           <div>
             <p className="text-lg font-semibold text-center mb-4">
-              My Tasks{' '}
-              <Chip size="sm" variant="faded">
-                {maintenanceList.length}
-              </Chip>
+              My Tasks <Badge>{maintenanceList.length}</Badge>
             </p>
-            <Divider />
+            <Separator />
             {maintenanceList.map(maintenance => (
               <Card key={maintenance.uid} className="w-full my-4">
                 <CardHeader className="flex gap-3">
-                  <Button color="danger" isIconOnly>
-                    <LuWrench />
+                  <Button color="danger" size="icon">
+                    <Wrench />
                   </Button>
                   <div className="flex flex-col">
                     <Link
@@ -157,7 +157,7 @@ export default function Task({
             <p className="text-lg font-semibold text-center mb-4">
               Completed Tasks
             </p>
-            <Divider />
+            <Separator />
           </div>
         </Card>
         <Card className="flex-1 p-4">
@@ -165,7 +165,7 @@ export default function Task({
             <p className="text-lg font-semibold text-center mb-4">
               Upcoming Tasks
             </p>
-            <Divider />
+            <Separator />
           </div>
         </Card>
       </div>

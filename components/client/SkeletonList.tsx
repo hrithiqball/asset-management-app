@@ -1,5 +1,5 @@
 import React from 'react';
-import { Skeleton } from '@nextui-org/react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function SkeletonList() {
   return (

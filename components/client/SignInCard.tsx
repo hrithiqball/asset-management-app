@@ -1,15 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import {
-  Card,
-  Button,
-  Input,
-  CardHeader,
-  Image,
-  Divider,
-  Link,
-} from '@nextui-org/react';
+import { Card, CardHeader } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import Image from 'next/image';
+import Link from 'next/link';
+
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
@@ -53,13 +51,12 @@ export default function SignInCard() {
           <Image
             alt="Asset Management System"
             height={40}
-            radius="sm"
             src="../favicon.ico"
             width={40}
           />
           <p className="text-md">Asset Management System</p>
         </CardHeader>
-        <Divider />
+        <Separator />
         <Input
           value={email}
           onChange={handleEmail}
@@ -75,8 +72,8 @@ export default function SignInCard() {
           placeholder="Password"
           className="mb-4"
         />
-        <Divider />
-        <Button variant="solid" className="w-full mt-4" onClick={signInClient}>
+        <Separator />
+        <Button className="w-full mt-4" onClick={signInClient}>
           Login
         </Button>
         <Link

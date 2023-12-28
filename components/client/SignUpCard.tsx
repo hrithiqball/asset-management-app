@@ -1,16 +1,13 @@
 'use client';
 
 import React, { useState, useTransition } from 'react';
-// import { SignUpUser } from '@/utils/model/user';
-import {
-  Button,
-  Card,
-  CardHeader,
-  Divider,
-  Image,
-  Input,
-  Link,
-} from '@nextui-org/react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+
 import { useRouter } from 'next/navigation';
 import { createNewUser } from '@/app/api/server-actions';
 import { toast } from 'sonner';
@@ -76,13 +73,12 @@ export default function SignUpCard() {
           <Image
             alt="Asset Management System"
             height={40}
-            radius="sm"
             src="../favicon.ico"
             width={40}
           />
           <p className="text-md">Asset Management System</p>
         </CardHeader>
-        <Divider />
+        <Separator />
         <Input
           value={name}
           onChange={handleName}
@@ -121,8 +117,8 @@ export default function SignUpCard() {
           placeholder="Confirm Password"
           className="mt-4 mb-4"
         />
-        <Divider />
-        <Button variant="solid" className="w-full mt-4" onClick={signUpClient}>
+        <Separator />
+        <Button className="w-full mt-4" onClick={signUpClient}>
           Sign Up
         </Button>
         <Link

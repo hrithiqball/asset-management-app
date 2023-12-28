@@ -1,32 +1,28 @@
 'use client';
 
-import React, {
-  Fragment,
-  useEffect,
-  useRef,
-  useState,
-  useTransition,
-} from 'react';
-import { useTheme } from 'next-themes';
+import React, { useEffect, useRef, useState, useTransition } from 'react';
 import Loading from '@/components/client/Loading';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import {
-  Button,
-  ButtonGroup,
-  Card,
-  Divider,
-  Dropdown,
-  DropdownItem,
   DropdownMenu,
-  DropdownTrigger,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Select,
-  SelectItem,
-} from '@nextui-org/react';
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+
 import Link from 'next/link';
 import { FaRegFileExcel, FaRegFilePdf } from 'react-icons/fa6';
 import {
@@ -36,12 +32,7 @@ import {
   subtask,
   task,
 } from '@prisma/client';
-import {
-  LuFilePlus2,
-  LuChevronDown,
-  LuChevronLeft,
-  LuPencilLine,
-} from 'react-icons/lu';
+import { LuPencilLine } from 'react-icons/lu';
 import moment from 'moment';
 import { createChecklist } from '@/app/api/server-actions';
 import { Border, Cell, Column, Workbook } from 'exceljs';
@@ -50,6 +41,8 @@ import { base64Image } from '@/public/client-icon-base64';
 import { saveAs } from 'file-saver';
 import { Result } from '@/utils/function/result';
 import { convertToRoman } from '@/utils/function/convertToRoman';
+import { ChevronDown, ChevronLeft, FilePlus2 } from 'lucide-react';
+import { Label } from '@/components/ui/label';
 
 export default function TaskMaintenance({
   maintenance,
@@ -61,23 +54,13 @@ export default function TaskMaintenance({
   children: React.ReactNode;
 }) {
   let [isPending, startTransition] = useTransition();
-  const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [openAddChecklist, setOpenAddChecklist] = useState(false);
   const [newChecklistTitle, setNewChecklistTitle] = useState('');
   const [newChecklistDescription, setNewChecklistDescription] = useState('');
-  const [selectedSaveOption, setSelectedSaveOption] = useState(
-    new Set(['saveOnly']),
-  );
+  const [selectedSaveOption, setSelectedSaveOption] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  const descriptionsMap = {
-    saveOnly: 'Save only for this maintenance.',
-    saveAsLibrary:
-      'Save for current maintenance and create a new library for future use.',
-    onlyLibrary: 'Only save as library and not use for current maintenance.',
-  };
 
   const labelsMap: { [key: string]: string } = {
     saveOnly: 'Save only',
@@ -95,7 +78,6 @@ export default function TaskMaintenance({
     setOpenAddChecklist(false);
     setNewChecklistTitle('');
     setNewChecklistDescription('');
-    setSelectedSaveOption(new Set(['saveOnly']));
     setOpenAddChecklist(!openAddChecklist);
   }
 
@@ -115,6 +97,7 @@ export default function TaskMaintenance({
 
     startTransition(() => {
       createChecklist(newChecklist);
+      if (!isPending) console.log('success');
     });
   }
 
@@ -511,149 +494,112 @@ export default function TaskMaintenance({
     console.log('downloaded');
   }
 
-  async function returningStuff() {
-    return 'hye';
-  }
-
   if (!mounted) return <Loading label="Hang on tight" />;
 
   return (
-    <Fragment>
-      <Card
-        className={`rounded-md p-4 m-4 flex-grow ${
-          theme === 'dark' ? 'bg-gray-800' : 'bg-gray-200'
-        }`}
-      >
-        <div className="flex flex-row">
-          <Button
-            className="max-w-min"
-            as={Link}
-            href="/task"
-            startContent={<LuChevronLeft />}
-            variant="faded"
-            size="md"
-          >
-            Back
+    <Card className="rounded-md p-4 m-4 flex-grow">
+      <div className="flex flex-row">
+        <Button className="max-w-min" asChild>
+          <ChevronLeft />
+          <Link href="/task">Back</Link>
+        </Button>
+      </div>
+      <div className="flex flex-row justify-between items-center my-4 ">
+        <h2 className="text-xl font-semibold">{maintenance.uid}</h2>
+        <div className="flex flex-row space-x-1">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="icon">
+                <FilePlus2 />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader className="flex flex-col gap-1">
+                <DialogTitle>Add New Checklist</DialogTitle>
+              </DialogHeader>
+              {/* <Select label="Checklist Library" variant="faded">
+                {!checklistLibraryList || !checklistLibraryList.length ? (
+                  <SelectItem key="err">No library found</SelectItem>
+                ) : (
+                  checklistLibraryList.map(library => (
+                    <SelectItem key={library.uid} value={library.uid}>
+                      <span>{library.title}</span>
+                    </SelectItem>
+                  ))
+                )}
+              </Select> */}
+              <Separator />
+              <Label htmlFor="title">Title</Label>
+              <Input
+                value={newChecklistTitle}
+                onChange={e => setNewChecklistTitle(e.target.value)}
+                required
+                id="title"
+              />
+              <Label htmlFor="description">Description</Label>
+              <Input
+                value={newChecklistDescription}
+                onChange={e => setNewChecklistDescription(e.target.value)}
+                id="description"
+              />
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button type="button" variant="secondary">
+                    Close
+                  </Button>
+                  <Button type="button" disabled={newChecklistTitle === ''}>
+                    {
+                      labelsMap[
+                        selectedSaveOptionCurrent as keyof typeof labelsMap
+                      ]
+                    }
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="icon">
+                        <ChevronDown />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuRadioGroup
+                        onValueChange={setSelectedSaveOption}
+                      >
+                        <DropdownMenuRadioItem value="saveOnly">
+                          Save only for this maintenance
+                        </DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value="saveAsLibrary">
+                          Save for current maintenance and create a new library
+                          for future use
+                        </DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value="onlyLibrary">
+                          Only save as library and not use for current
+                          maintenance
+                        </DropdownMenuRadioItem>
+                      </DropdownMenuRadioGroup>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <Button size="icon">
+            <LuPencilLine />
+          </Button>
+          <Button size="icon">
+            <FaRegFilePdf />
+          </Button>
+          <Button size="icon" onClick={exportToExcel}>
+            <FaRegFileExcel />
           </Button>
         </div>
-        <div className="flex flex-row justify-between items-center my-4 ">
-          <h2 className="text-xl font-semibold">{maintenance.uid}</h2>
-          <div className="flex flex-row space-x-1">
-            <Button
-              isIconOnly
-              variant="faded"
-              onPress={() => setOpenAddChecklist(!openAddChecklist)}
-            >
-              <LuFilePlus2 />
-            </Button>
-            <Modal isOpen={openAddChecklist} hideCloseButton backdrop="blur">
-              <ModalContent>
-                <ModalHeader className="flex flex-col gap-1">
-                  Add New Checklist
-                </ModalHeader>
-                <ModalBody>
-                  <Select label="Checklist Library" variant="faded">
-                    {!checklistLibraryList || !checklistLibraryList.length ? (
-                      <SelectItem key="err">No library found</SelectItem>
-                    ) : (
-                      checklistLibraryList.map(library => (
-                        <SelectItem key={library.uid} value={library.uid}>
-                          <span>{library.title}</span>
-                        </SelectItem>
-                      ))
-                    )}
-                  </Select>
-                  <Divider />
-                  <Input
-                    value={newChecklistTitle}
-                    onValueChange={setNewChecklistTitle}
-                    isRequired
-                    label="Title"
-                    variant="faded"
-                  />
-                  <Input
-                    value={newChecklistDescription}
-                    onValueChange={setNewChecklistDescription}
-                    label="Description"
-                    variant="faded"
-                  />
-                </ModalBody>
-                <ModalFooter>
-                  <Button
-                    color="danger"
-                    onClick={() => setOpenAddChecklist(!openAddChecklist)}
-                  >
-                    Cancel
-                  </Button>
-                  <ButtonGroup>
-                    <Button
-                      isDisabled={newChecklistTitle === ''}
-                      onClick={handleClose}
-                    >
-                      {
-                        labelsMap[
-                          selectedSaveOptionCurrent as keyof typeof labelsMap
-                        ]
-                      }
-                    </Button>
-                    <Dropdown placement="bottom-end">
-                      <DropdownTrigger>
-                        <Button isIconOnly>
-                          <LuChevronDown />
-                        </Button>
-                      </DropdownTrigger>
-                      <DropdownMenu
-                        disallowEmptySelection
-                        aria-label="Merge options"
-                        selectedKeys={selectedSaveOption}
-                        selectionMode="single"
-                        onSelectionChange={(setString: any) =>
-                          setSelectedSaveOption(setString)
-                        }
-                        className="max-w-[300px]"
-                      >
-                        <DropdownItem
-                          key="saveOnly"
-                          description={descriptionsMap['saveOnly']}
-                        >
-                          {labelsMap['saveOnly']}
-                        </DropdownItem>
-                        <DropdownItem
-                          key="saveAsLibrary"
-                          description={descriptionsMap['saveAsLibrary']}
-                        >
-                          {labelsMap['saveAsLibrary']}
-                        </DropdownItem>
-                        <DropdownItem
-                          key="onlyLibrary"
-                          description={descriptionsMap['onlyLibrary']}
-                        >
-                          {labelsMap['onlyLibrary']}
-                        </DropdownItem>
-                      </DropdownMenu>
-                    </Dropdown>
-                  </ButtonGroup>
-                </ModalFooter>
-              </ModalContent>
-            </Modal>
-            <Button isIconOnly variant="faded">
-              <LuPencilLine />
-            </Button>
-            <Button isIconOnly variant="faded">
-              <FaRegFilePdf />
-            </Button>
-            <Button isIconOnly variant="faded" onClick={exportToExcel}>
-              <FaRegFileExcel />
-            </Button>
-          </div>
-        </div>
-        <Divider />
-        <Card className="rounded-md mt-4">
-          <div className="flex flex-col h-full p-4 overflow-y-auto">
-            <div className="flex-shrink-0 w-full">{children}</div>
-          </div>
-        </Card>
+      </div>
+      <Separator />
+      <Card className="rounded-md mt-4">
+        {/* <div className="flex flex-col h-full p-4 overflow-y-auto">
+          <div className="flex-shrink-0 w-full">{children}</div>
+        </div> */}
+        hello
       </Card>
-    </Fragment>
+    </Card>
   );
 }

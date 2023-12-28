@@ -2,40 +2,33 @@
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
 import { LuUser, LuSun, LuMoonStar } from 'react-icons/lu';
 import { useTheme } from 'next-themes';
 import clientIcon from '@/public/image/client-icon.svg';
 import {
-  Navbar,
-  NavbarBrand,
-  NavbarContent,
-  NavbarItem,
-  NavbarMenuToggle,
-  Button,
-  NavbarMenu,
-  NavbarMenuItem,
-  Link,
-  DropdownTrigger,
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from '@/components/ui/navigation-menu';
+import { Button } from '@/components/ui/button';
+import {
   DropdownMenu,
-  Dropdown,
-  DropdownItem,
-} from '@nextui-org/react';
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { signOut } from 'next-auth/react';
 import { useSession } from 'next-auth/react';
+import { User } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Navigation() {
   const { theme, setTheme } = useTheme();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const pathname = usePathname();
   const { data: session } = useSession();
-
-  const navLinks = [
-    { href: '/dashboard', label: 'Dashboard' },
-    { href: '/asset', label: 'Asset' },
-    { href: '/task', label: 'Task' },
-  ];
 
   useEffect(() => {
     setMounted(true);
@@ -44,13 +37,31 @@ export default function Navigation() {
   if (!mounted) return null;
 
   return (
-    <Navbar
-      disableAnimation={true}
-      onMenuOpenChange={setIsMenuOpen}
-      className="flex relative w-full items-center justify-between"
-      maxWidth="full"
-    >
-      <NavbarContent justify="start">
+    <NavigationMenu className="flex relative w-full items-center justify-between">
+      <NavigationMenuList>
+        <NavigationMenuItem>
+          <Link href="/dashboard" legacyBehavior passHref>
+            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+              Dashboard
+            </NavigationMenuLink>
+          </Link>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <Link href="/asset" legacyBehavior passHref>
+            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+              Asset
+            </NavigationMenuLink>
+          </Link>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <Link href="/task" legacyBehavior passHref>
+            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+              Task
+            </NavigationMenuLink>
+          </Link>
+        </NavigationMenuItem>
+      </NavigationMenuList>
+      {/* <NavbarContent justify="start">
         <NavbarMenuToggle
           aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
           className="pr-8 sm:hidden"
@@ -64,8 +75,8 @@ export default function Navigation() {
           />
           <p className="font-bold text-inherit">AMS</p>
         </NavbarBrand>
-      </NavbarContent>
-      <NavbarContent className="hidden sm:flex gap-4" justify="center">
+      </NavbarContent> */}
+      {/* <NavbarContent className="hidden sm:flex gap-4" justify="center">
         {navLinks.map(link => {
           const isCurrentPage =
             pathname === link.href || pathname.startsWith(link.href);
@@ -85,8 +96,8 @@ export default function Navigation() {
             </NavbarItem>
           );
         })}
-      </NavbarContent>
-      <NavbarContent justify="end">
+      </NavbarContent> */}
+      {/* <NavbarContent justify="end">
         <Button
           isIconOnly
           onClick={() => {
@@ -95,27 +106,26 @@ export default function Navigation() {
         >
           {theme === 'dark' ? <LuMoonStar /> : <LuSun />}
         </Button>
-        <Dropdown placement="bottom-end">
-          <DropdownTrigger>
-            <Button
-              variant="ghost"
-              size="sm"
-              startContent={<LuUser size={20} />}
-            >
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm">
+              <User />
               {session?.user?.name}
             </Button>
-          </DropdownTrigger>
-          <DropdownMenu aria-label="Profile Actions" variant="flat">
-            <DropdownItem key="real-name">{session?.user?.name}</DropdownItem>
-            <DropdownItem key="profile">{session?.user?.email}</DropdownItem>
-            <DropdownItem key="settings">My Settings</DropdownItem>
-            <DropdownItem color="danger" key="real" onClick={() => signOut()}>
-              Sign Out
-            </DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
-      </NavbarContent>
-      <NavbarMenu>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent aria-label="Profile Actions">
+            <DropdownMenuGroup>
+              <DropdownMenuItem>{session?.user?.name}</DropdownMenuItem>
+              <DropdownMenuItem>{session?.user?.email}</DropdownMenuItem>
+              <DropdownMenuItem>My Settings</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => signOut()}>
+                Sign Out
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </NavbarContent> */}
+      {/* <NavbarMenu>
         {navLinks.map(item => {
           const isCurrentPage = pathname === item.href;
           const linkColor = isCurrentPage ? 'primary' : 'foreground';
@@ -133,7 +143,7 @@ export default function Navigation() {
             </NavbarMenuItem>
           );
         })}
-      </NavbarMenu>
-    </Navbar>
+      </NavbarMenu> */}
+    </NavigationMenu>
   );
 }

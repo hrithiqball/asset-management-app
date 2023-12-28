@@ -1,12 +1,13 @@
 'use client';
 
 import React from 'react';
-import { Button, Link } from '@nextui-org/react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function AuthButton() {
   return (
-    <Button as={Link} href="/sign-in">
-      Sign In
+    <Button asChild>
+      <Link href="/sign-in">Sign In</Link>
     </Button>
   );
 }

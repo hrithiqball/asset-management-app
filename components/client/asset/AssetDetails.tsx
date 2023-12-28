@@ -1,28 +1,21 @@
+'use client';
+
 import React from 'react';
 import { asset, checklist_use } from '@prisma/client';
 import Image from 'next/image';
 import moment from 'moment';
 import { LuWrench } from 'react-icons/lu';
 import {
-  Avatar,
-  AvatarGroup,
-  Button,
-  Card,
-  Chip,
-  Table,
-  TableBody,
-  TableCell,
-  TableColumn,
-  TableHeader,
-  TableRow,
-  User,
-} from '@nextui-org/react';
-import {
   BsFillPersonBadgeFill,
   BsPassFill,
   BsClockFill,
   BsClockHistory,
 } from 'react-icons/bs';
+import { Card } from '@/components/ui/card';
+import { Table, TableBody, TableRow, TableCell } from '@/components/ui/table';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 export default function AssetDetails({
   asset,
@@ -46,17 +39,7 @@ export default function AssetDetails({
                 height={800}
                 className="object-cover rounded-md"
               />
-              <Table
-                className="mb-4 mx-4"
-                aria-label="Asset Details"
-                color="primary"
-                hideHeader
-                removeWrapper
-              >
-                <TableHeader>
-                  <TableColumn key="key">Key</TableColumn>
-                  <TableColumn key="value">Value</TableColumn>
-                </TableHeader>
+              <Table className="mb-4 mx-4" aria-label="Asset Details">
                 <TableBody>
                   <TableRow>
                     <TableCell>
@@ -105,37 +88,46 @@ export default function AssetDetails({
             <BsFillPersonBadgeFill />
             <span className="font-bold ml-4">Team</span>
           </div>
-          <Table aria-label="Team" color="primary" hideHeader removeWrapper>
-            <TableHeader>
-              <TableColumn key="key">Key</TableColumn>
-              <TableColumn key="value">Value</TableColumn>
-            </TableHeader>
+          <Table aria-label="Team" color="primary">
             <TableBody>
               <TableRow>
                 <TableCell className="font-semibold">
                   Person In Charge
                 </TableCell>
                 <TableCell className="justify-center">
-                  <User
-                    name="Jane Doe"
-                    description="Product Designer"
-                    avatarProps={{
-                      src: 'https://i.pravatar.cc/150?u=a04258114e29026702d',
-                    }}
-                  />
+                  <Avatar>
+                    <AvatarImage
+                      src="https://i.pravatar.cc/150?u=a04258114e29026702d"
+                      alt="Jane Doe"
+                    />
+                    <AvatarFallback>JD</AvatarFallback>
+                  </Avatar>
                 </TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="semi-bold">Maintainer</TableCell>
                 <TableCell>
-                  <AvatarGroup isBordered max={5}>
-                    <Avatar src="https://i.pravatar.cc/150?u=a042581f4e29026024d" />
-                    <Avatar src="https://i.pravatar.cc/150?u=a04258a2462d826712d" />
-                    <Avatar src="https://i.pravatar.cc/150?u=a042581f4e29026704d" />
-                    <Avatar src="https://i.pravatar.cc/150?u=a04258114e29026302d" />
-                    <Avatar src="https://i.pravatar.cc/150?u=a04258114e29026702d" />
-                    <Avatar src="https://i.pravatar.cc/150?u=a04258114e29026708c" />
-                  </AvatarGroup>
+                  <Avatar>
+                    <AvatarImage
+                      src="https://i.pravatar.cc/150?u=a04258114e29026702d"
+                      alt="Jane Doe"
+                    />
+                    <AvatarFallback>JD</AvatarFallback>
+                  </Avatar>
+                  <Avatar>
+                    <AvatarImage
+                      src="https://i.pravatar.cc/150?u=a04258114e29026702d"
+                      alt="Jane Doe"
+                    />
+                    <AvatarFallback>JD</AvatarFallback>
+                  </Avatar>
+                  <Avatar>
+                    <AvatarImage
+                      src="https://i.pravatar.cc/150?u=a04258114e29026702d"
+                      alt="Jane Doe"
+                    />
+                    <AvatarFallback>JD</AvatarFallback>
+                  </Avatar>
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -149,7 +141,7 @@ export default function AssetDetails({
           <div className="">
             {checklistUse.map(checklist => (
               <div key={checklist.uid} className="flex flex-row items-center">
-                <Chip variant="flat">{checklist.title}</Chip>
+                <Badge variant="default">{checklist.title}</Badge>
               </div>
             ))}
           </div>
@@ -159,48 +151,35 @@ export default function AssetDetails({
             <LuWrench />
             <span className="font-bold ml-4">Maintenance</span>
           </div>
-          <Table
-            className="mt-4"
-            aria-label="Maintenance"
-            color="primary"
-            hideHeader
-            removeWrapper
-          >
-            <TableHeader>
-              <TableColumn key="key">Key</TableColumn>
-              <TableColumn key="value">Value</TableColumn>
-            </TableHeader>
+          <Table className="mt-4" aria-label="Maintenance">
             <TableBody>
               <TableRow>
                 <TableCell className="font-semibold">
                   Next Maintenance
                 </TableCell>
                 <TableCell className="justify-center">
-                  <Chip variant="flat" startContent={<BsClockFill size={18} />}>
+                  <Badge>
+                    <BsClockFill size={18} />
                     {asset.next_maintenance !== null
                       ? moment(asset.next_maintenance).format('DD/MM/yyyy')
                       : 'No Scheduled Maintenance'}
-                  </Chip>
+                  </Badge>
                 </TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="semi-bold">Last Maintenance</TableCell>
                 <TableCell>
-                  <Chip
-                    variant="flat"
-                    startContent={<BsClockHistory size={18} />}
-                  >
+                  <Badge>
+                    <BsClockHistory size={18} />
                     {asset.last_maintenance !== null
                       ? moment(asset.last_maintenance).format('DD/MM/yyyy')
                       : 'No Maintenance Completed'}
-                  </Chip>
+                  </Badge>
                 </TableCell>
               </TableRow>
             </TableBody>
           </Table>
-          <Button className="my-4" color="success" variant="faded">
-            Create Maintenance Request
-          </Button>
+          <Button className="my-4">Create Maintenance Request</Button>
         </Card>
       </div>
     </div>

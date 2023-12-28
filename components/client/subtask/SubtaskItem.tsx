@@ -1,19 +1,21 @@
 'use client';
 
-import React, { KeyboardEvent, useMemo, useState, useTransition } from 'react';
+import React, { KeyboardEvent, useState, useTransition } from 'react';
 import { subtask } from '@prisma/client';
 import { updateSubtask } from '@/app/api/server-actions';
-import {
-  Button,
-  Checkbox,
-  Input,
-  Select,
-  SelectItem,
-  Switch,
-} from '@nextui-org/react';
 import { UpdateSubtask } from '@/app/api/subtask/[uid]/route';
-import { LuCornerDownRight, LuMoreVertical, LuTrash2 } from 'react-icons/lu';
-import { isEditState, useSelector } from '@/lib/redux';
+import { LuCornerDownRight, LuMoreVertical } from 'react-icons/lu';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 
 export enum InputType {
   remarks,
@@ -22,7 +24,6 @@ export enum InputType {
 }
 
 export default function SubtaskItem({ subtask }: { subtask: subtask }) {
-  const isEdit = useSelector(isEditState);
   let [isPending, startTransition] = useTransition();
   const [subtaskIsComplete, setSubtaskIsComplete] = useState(
     subtask.is_complete,
@@ -42,8 +43,6 @@ export default function SubtaskItem({ subtask }: { subtask: subtask }) {
     subtask.task_number_val?.toString() ?? '',
   );
 
-  const numericRegex = /^-?\d+(\.\d+)?$/;
-
   function handleEnter(
     event: KeyboardEvent<HTMLInputElement>,
     type: InputType,
@@ -58,36 +57,10 @@ export default function SubtaskItem({ subtask }: { subtask: subtask }) {
     updateSubtaskClient(updateSubtask);
   }
 
-  const validateNumericInput = (value: string) => value.match(numericRegex);
-
-  const isInvalid = useMemo(() => {
-    if (taskNumberValue === '') return false;
-
-    return validateNumericInput(taskNumberValue) ? false : true;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [taskNumberValue]);
-
-  function handleSelectionChange(val: any) {
-    const changedValue = [val.currentKey as string];
-
-    if (
-      changedValue.length !== taskSelected.length &&
-      changedValue.every((value, index) => value === taskSelected[index])
-    ) {
-      setTaskSelected(changedValue);
-      const taskUpdate: UpdateSubtask = {
-        task_selected: changedValue,
-      };
-
-      startTransition(() => {
-        updateSubtask(subtask.uid, taskUpdate);
-      });
-    }
-  }
-
   function updateSubtaskClient(subtaskUpdate: UpdateSubtask) {
     startTransition(() => {
       updateSubtask(subtask.uid, subtaskUpdate);
+      if (!isPending) console.log('completed');
     });
   }
 
@@ -108,8 +81,8 @@ export default function SubtaskItem({ subtask }: { subtask: subtask }) {
         {taskType === 'check' && (
           <div className="flex justify-center">
             <Checkbox
-              isSelected={subtaskIsComplete}
-              onValueChange={() => {
+              checked={subtaskIsComplete}
+              onCheckedChange={() => {
                 setSubtaskIsComplete(!subtaskIsComplete);
                 const updateSubtask: UpdateSubtask = {
                   is_complete: !subtaskIsComplete,
@@ -122,68 +95,61 @@ export default function SubtaskItem({ subtask }: { subtask: subtask }) {
         {taskType === 'choice' && (
           <div className="flex justify-center">
             <Switch
-              className="flex-1"
-              isSelected={taskBool}
-              onValueChange={() => {
+              checked={taskBool}
+              onCheckedChange={() => {
                 setTaskBool(!taskBool);
                 const taskUpdate: UpdateSubtask = {
                   task_bool: !taskBool,
                 };
                 updateSubtaskClient(taskUpdate);
               }}
+              className="flex-1"
             />
           </div>
         )}
+        {/* TODO: migrate to headless ui react */}
         {(taskType === 'selectOne' || taskType === 'selectMultiple') && (
-          <Select
-            variant="faded"
-            selectedKeys={taskSelected}
-            selectionMode={
-              taskType === 'selectMultiple' ? 'multiple' : 'single'
-            }
-            onSelectionChange={handleSelectionChange}
-            size="sm"
-            placeholder="Choose one"
-          >
-            {subtask.list_choice.map(choice => (
-              <SelectItem key={choice} value={choice}>
-                {choice}
-              </SelectItem>
-            ))}
+          <Select>
+            <SelectTrigger>
+              <SelectValue>
+                {taskSelected.length > 0 ? taskSelected[0] : 'Select'}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {subtask.list_choice.map(choice => (
+                  <SelectItem key={choice} value={choice}>
+                    {choice}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
           </Select>
         )}
         {taskType === 'number' && (
           <Input
-            variant="faded"
             value={taskNumberValue}
-            onValueChange={setTaskNumberValue}
+            onChange={e => setTaskNumberValue(e.target.value)}
             onKeyDown={e => handleEnter(e, InputType.numberVal)}
-            isInvalid={isInvalid}
-            color={isInvalid ? 'danger' : 'primary'}
           />
         )}
       </div>
       <div className="flex-1 px-4">
         <Input
-          variant="faded"
           value={subtaskIssue}
-          onValueChange={setSubtaskIssue}
+          onChange={e => setSubtaskIssue(e.target.value)}
           onKeyDown={e => handleEnter(e, InputType.issue)}
         />
       </div>
       <div className="flex-1 px-4">
         <Input
-          variant="faded"
+          onChange={e => setSubtaskRemarks(e.target.value)}
           value={subtaskRemarks}
-          onValueChange={setSubtaskRemarks}
           onKeyDown={e => handleEnter(e, InputType.remarks)}
         />
       </div>
       <div className="flex-2 hover:cursor-not-allowed">
         <LuMoreVertical />
-        {/* <Button isDisabled={!isEdit} isIconOnly color="danger">
-          <LuTrash2 />
-        </Button> */}
       </div>
     </div>
   );

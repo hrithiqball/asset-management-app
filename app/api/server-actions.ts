@@ -3,6 +3,8 @@
 import {
   Prisma,
   asset,
+  asset_status,
+  asset_type,
   checklist,
   maintenance,
   subtask,
@@ -15,6 +17,17 @@ import moment from 'moment';
 import bcrypt from 'bcrypt';
 
 // user
+
+export async function fetchUserByEmail(email: string) {
+  try {
+    return await prisma.user.findUnique({
+      where: { email },
+    });
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
 
 export async function createNewUser(
   name: string,
@@ -45,11 +58,22 @@ export async function createNewUser(
 
 // asset
 
+export async function createAsset(data: asset): Promise<asset> {
+  try {
+    return await prisma.asset.create({
+      data,
+    });
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 export async function fetchAssetList(): Promise<asset[]> {
   try {
     return await prisma.asset.findMany({
       orderBy: {
-        updated_on: 'desc',
+        name: 'asc',
       },
     });
   } catch (error) {
@@ -58,7 +82,63 @@ export async function fetchAssetList(): Promise<asset[]> {
   }
 }
 
+export async function fetchFilteredAssetList(assetIds: string[]) {
+  try {
+    return await prisma.asset.findMany({
+      where: {
+        uid: {
+          in: assetIds,
+        },
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+// asset type
+
+export async function fetchAssetTypeList(): Promise<asset_type[]> {
+  try {
+    return await prisma.asset_type.findMany({
+      orderBy: {
+        updated_on: 'desc',
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+// asset status
+
+export async function fetchAssetStatusList(): Promise<asset_status[]> {
+  try {
+    return await prisma.asset_status.findMany({
+      orderBy: {
+        title: 'desc',
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 // maintenance
+
+export async function createMaintenance(data: maintenance) {
+  try {
+    return await prisma.maintenance.create({
+      data,
+    });
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
 
 export async function fetchMaintenanceItemById(uid: string) {
   try {

@@ -1,5 +1,14 @@
+// import { sendMail } from '@/services/mailService';
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
+import { SMTPClient } from 'emailjs';
+
+const client = new SMTPClient({
+  user: 'mishu.asset.management@gmail.com',
+  password: '@sseT777',
+  host: 'smtp.gmail.com',
+  ssl: true,
+});
 
 // export function htmlMagicLink(name: string, link: string): string {
 //   return `<div>
@@ -14,6 +23,36 @@ export function htmlForgotPassword(name: string, link: string): string {
     <h1>Hi, ${name}!</h1>
     <p>Click <a href="${link}">here</a> to reset your password</p>
   </div>`;
+}
+
+export async function GET(nextRequest: NextRequest) {
+  try {
+    const to = 'harithmu@gmail.com';
+    const subject = 'Test emailjs';
+    const text = 'This is a test email';
+
+    client.send(
+      { text, from: 'mishu.asset.management@gmail.com', to, subject },
+      (err, message) => {
+        if (err) {
+          console.error(err);
+        } else {
+          console.log('Email sent', message);
+        }
+      },
+    );
+
+    return NextResponse.json(
+      { message: 'Success: email was sent' },
+      { status: 200, headers: { 'Content-Type': 'application/json' } },
+    );
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { message: 'Error' },
+      { status: 500, headers: { 'Content-Type': 'application/json' } },
+    );
+  }
 }
 
 export async function POST(nextRequest: NextRequest) {

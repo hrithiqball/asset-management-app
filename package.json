@@ -15,12 +15,13 @@
     "lint": "next lint",
     "prisma": "prisma db pull && prisma generate",
     "prisma-push": "prisma db push",
-    "prisma-init-migrate" : "prisma migrate dev --name init",
+    "prisma-init-migrate": "prisma migrate dev --name init",
     "prettier": "prettier --write .",
     "release": "semantic-release",
     "spellcheck": "cspell **"
   },
   "dependencies": {
+    "@emailjs/browser": "^3.11.0",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@fullcalendar/core": "^6.1.9",
@@ -35,6 +36,7 @@
     "bcrypt": "^5.1.1",
     "chart.js": "^4.4.0",
     "dotenv": "^16.3.1",
+    "emailjs": "^4.0.3",
     "eslint": "8.49.0",
     "eslint-config-next": "13.5.1",
     "exceljs": "^4.4.0",
